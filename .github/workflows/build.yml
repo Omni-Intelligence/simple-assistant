@@ -1,0 +1,39 @@
+name: Build Application
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Install dependencies
+      run: pip install -r requirements.txt pyinstaller python-dotenv
+    
+    - name: Build executable
+      run: |
+        pyinstaller cpa.spec
+      shell: bash  
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: simple-voice-assistant-${{ matrix.os }}
+        path: dist/*
+        retention-days: 30
